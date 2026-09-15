@@ -539,15 +539,7 @@
                     close it. That's the whole habit.</p>
 
                 <div class="mt-10 flex flex-col sm:flex-row gap-3 justify-center items-center">
-                    <a href="#"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-ink rounded-full px-7 py-4 font-semibold hover:-translate-y-0.5 transition">
-                        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true">
-                            <path
-                                d="M16.3 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8zM14.2 5.6c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z" />
-                        </svg>
-                        Download for iPhone
-                    </a>
-                    <a href="#"
+                    <a href="OISH - Personal Finance app.apk"
                         class="w-full sm:w-auto inline-flex items-center justify-center gap-3 border-2 border-white/40 rounded-full px-7 py-4 font-semibold hover:border-white transition">
                         <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true">
                             <path
@@ -555,8 +547,17 @@
                         </svg>
                         Download for Android
                     </a>
+                    <a href="#"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-ink rounded-full px-7 py-4 font-semibold hover:-translate-y-0.5 transition">
+                        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M16.3 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.9-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.8zM14.2 5.6c.6-.8 1-1.9.9-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.8-1.3z" />
+                        </svg>
+                        Coming soon...
+                    </a>
+
                 </div>
-                <p class="mt-6 text-sm text-white/50">Android 8+ · iOS 15+ · 4 MB · no ads, no in-app purchases</p>
+                <p class="mt-6 text-sm text-white/50">Android 8+ · 100 MB · no ads, no in-app purchases</p>
             </div>
         </section>
 
@@ -581,146 +582,515 @@
     <script>
             (function () {
                 var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-                var rupee = function (n) { return '₹' + Math.round(n).toLocaleString('en-IN'); };
 
-                var show = new IntersectionObserver(function (es) {
-                    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('shown'); show.unobserve(e.target); } });
-                }, { threshold: 0.2 });
-                document.querySelectorAll('[data-rise], [data-wipe]').forEach(function (el, i) {
-                    el.style.setProperty('--d', (i % 4) * 0.09 + 's');
-                    show.observe(el);
+                var rupee = function (n) {
+                    return '₹' + Math.round(n).toLocaleString('en-IN');
+                };
+
+
+                /* =========================================
+                   ONBOARDING / SCROLL ANIMATIONS
+                   ========================================= */
+
+                /*
+                 * IMPORTANT:
+                 * Do NOT observe the .wipe image itself.
+                 *
+                 * .wipe starts with:
+                 * clip-path: inset(0 100% 0 0)
+                 *
+                 * so the image is completely clipped.
+                 *
+                 * Instead, observe the .phone card and reveal
+                 * the elements inside it when the card enters
+                 * the viewport.
+                 */
+
+                var show = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+
+                        var card = entry.target;
+
+                        card.querySelectorAll('[data-rise], [data-wipe]').forEach(function (el) {
+                            el.classList.add('shown');
+                        });
+
+                        show.unobserve(card);
+                    });
+                }, {
+                    threshold: 0.2
                 });
 
-                /* hero ledger writes itself */
+
+                /*
+                 * Observe onboarding cards instead of the
+                 * individually clipped images.
+                 */
+                document.querySelectorAll('.phone').forEach(function (card, i) {
+                    card.style.setProperty('--d', (i % 4) * 0.09 + 's');
+                    show.observe(card);
+                });
+
+
+                /*
+                 * Also handle standalone elements that use
+                 * data-rise but aren't inside .phone cards.
+                 */
+                document.querySelectorAll('[data-rise]').forEach(function (el, i) {
+                    if (el.closest('.phone')) return;
+
+                    el.style.setProperty('--d', (i % 4) * 0.09 + 's');
+
+                    var riseObserver = new IntersectionObserver(function (entries) {
+                        entries.forEach(function (entry) {
+                            if (!entry.isIntersecting) return;
+
+                            entry.target.classList.add('shown');
+                            riseObserver.unobserve(entry.target);
+                        });
+                    }, {
+                        threshold: 0.2
+                    });
+
+                    riseObserver.observe(el);
+                });
+
+
+                /* =========================================
+                   HERO LEDGER
+                   ========================================= */
+
                 var seed = [
-                    { t: 'salary', c: 'work', a: 48200, io: 'in' },
-                    { t: 'rent', c: 'home', a: 14000, io: 'out' },
-                    { t: 'groceries', c: 'food', a: 2340, io: 'out' },
-                    { t: 'bus fare', c: 'travel', a: 15, io: 'out' },
-                    { t: 'chai with ma', c: 'food', a: 60, io: 'out' }
+                    {
+                        t: 'salary',
+                        c: 'work',
+                        a: 48200,
+                        io: 'in'
+                    },
+                    {
+                        t: 'rent',
+                        c: 'home',
+                        a: 14000,
+                        io: 'out'
+                    },
+                    {
+                        t: 'groceries',
+                        c: 'food',
+                        a: 2340,
+                        io: 'out'
+                    },
+                    {
+                        t: 'bus fare',
+                        c: 'travel',
+                        a: 15,
+                        io: 'out'
+                    },
+                    {
+                        t: 'chai with ma',
+                        c: 'food',
+                        a: 60,
+                        io: 'out'
+                    }
                 ];
+
+
                 var list = document.getElementById('heroList');
                 var balEl = document.getElementById('heroBalance');
                 var barEl = document.getElementById('heroBar');
-                var income = 0, spent = 0;
+
+                var income = 0;
+                var spent = 0;
+
 
                 function row(e) {
                     var li = document.createElement('li');
-                    li.className = 'entry-new flex items-center justify-between h-10 text-[15px]';
+
+                    li.className =
+                        'entry-new flex items-center justify-between h-10 text-[15px]';
+
                     li.innerHTML =
-                        '<span class="flex items-center gap-2 min-w-0"><span class="truncate">' + e.t + '</span>' +
-                        '<span class="text-[11px] text-graphite border border-rule rounded-full px-2 shrink-0">' + e.c + '</span></span>' +
-                        '<span class="num font-semibold shrink-0">' + (e.io === 'in' ? '+' : '−') + rupee(e.a).slice(1) + '</span>';
+                        '<span class="flex items-center gap-2 min-w-0">' +
+                        '<span class="truncate">' +
+                        e.t +
+                        '</span>' +
+                        '<span class="text-[11px] text-graphite border border-rule rounded-full px-2 shrink-0">' +
+                        e.c +
+                        '</span>' +
+                        '</span>' +
+                        '<span class="num font-semibold shrink-0">' +
+                        (e.io === 'in' ? '+' : '−') +
+                        rupee(e.a).slice(1) +
+                        '</span>';
+
                     return li;
                 }
+
+
                 function paint() {
                     var left = income - spent;
+
                     balEl.textContent = rupee(left);
-                    barEl.style.width = (income ? Math.max(4, Math.min(100, left / income * 100)) : 0) + '%';
+
+                    barEl.style.width =
+                        (
+                            income
+                                ? Math.max(
+                                    4,
+                                    Math.min(100, left / income * 100)
+                                )
+                                : 0
+                        ) + '%';
                 }
-                var heroIO = new IntersectionObserver(function (es) {
-                    es.forEach(function (e) {
-                        if (!e.isIntersecting) return;
+
+
+                var heroIO = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+
                         heroIO.disconnect();
+
                         var i = 0;
+
                         (function step() {
                             if (i >= seed.length) return;
+
                             var x = seed[i++];
-                            if (x.io === 'in') income += x.a; else spent += x.a;
+
+                            if (x.io === 'in') {
+                                income += x.a;
+                            } else {
+                                spent += x.a;
+                            }
+
                             list.appendChild(row(x));
+
                             paint();
-                            setTimeout(step, reduce ? 0 : 620);
+
+                            setTimeout(
+                                step,
+                                reduce ? 0 : 620
+                            );
                         })();
                     });
-                }, { threshold: 0.3 });
+                }, {
+                    threshold: 0.3
+                });
+
+
                 heroIO.observe(list);
 
-                /* month bars */
+
+                /* =========================================
+                   MONTH BARS
+                   ========================================= */
+
                 var monthData = [
-                    { label: 'food', v: 9840 }, { label: 'home', v: 14000 }, { label: 'travel', v: 3120 },
-                    { label: 'bills', v: 2900 }, { label: 'fun', v: 1780 }
+                    {
+                        label: 'food',
+                        v: 9840
+                    },
+                    {
+                        label: 'home',
+                        v: 14000
+                    },
+                    {
+                        label: 'travel',
+                        v: 3120
+                    },
+                    {
+                        label: 'bills',
+                        v: 2900
+                    },
+                    {
+                        label: 'fun',
+                        v: 1780
+                    }
                 ];
+
+
                 var maxV = 14000;
+
                 var barsWrap = document.getElementById('bars');
+
+
                 monthData.forEach(function (d) {
                     var r = document.createElement('div');
+
                     r.innerHTML =
-                        '<div class="flex justify-between mb-1.5"><span class="hand text-xl">' + d.label + '</span>' +
-                        '<span class="num text-sm text-graphite">' + rupee(d.v) + '</span></div>' +
-                        '<div class="h-4 border-2 border-ink rounded-full overflow-hidden"><div class="h-full bg-ink" style="width:0;transition:width .9s cubic-bezier(.2,.8,.3,1)"></div></div>';
+                        '<div class="flex justify-between mb-1.5">' +
+                        '<span class="hand text-xl">' +
+                        d.label +
+                        '</span>' +
+                        '<span class="num text-sm text-graphite">' +
+                        rupee(d.v) +
+                        '</span>' +
+                        '</div>' +
+
+                        '<div class="h-4 border-2 border-ink rounded-full overflow-hidden">' +
+                        '<div class="h-full bg-ink" ' +
+                        'style="width:0;transition:width .9s cubic-bezier(.2,.8,.3,1)">' +
+                        '</div>' +
+                        '</div>';
+
                     barsWrap.appendChild(r);
                 });
-                var barsIO = new IntersectionObserver(function (es) {
-                    es.forEach(function (e) {
-                        if (!e.isIntersecting) return;
-                        barsWrap.querySelectorAll('div[style]').forEach(function (fill, i) {
-                            setTimeout(function () { fill.style.width = monthData[i].v / maxV * 100 + '%'; }, reduce ? 0 : i * 110);
-                        });
+
+
+                var barsIO = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+
+                        barsWrap
+                            .querySelectorAll('div[style]')
+                            .forEach(function (fill, i) {
+                                setTimeout(function () {
+                                    fill.style.width =
+                                        monthData[i].v / maxV * 100 + '%';
+                                }, reduce ? 0 : i * 110);
+                            });
+
                         barsIO.disconnect();
                     });
-                }, { threshold: 0.4 });
+                }, {
+                    threshold: 0.4
+                });
+
+
                 barsIO.observe(barsWrap);
 
-                /* quick add */
+
+                /* =========================================
+                   QUICK ADD
+                   ========================================= */
+
                 var amountEl = document.getElementById('amount');
                 var timerEl = document.getElementById('timer');
                 var noteEl = document.getElementById('receiptLine');
+
                 var tabOut = document.getElementById('tabOut');
                 var tabIn = document.getElementById('tabIn');
-                var digits = '', dir = 'out', cat = 'food', started = null, tick = null;
+
+                var digits = '';
+                var dir = 'out';
+                var cat = 'food';
+
+                var started = null;
+                var tick = null;
+
 
                 function startClock() {
                     if (started) return;
+
                     started = performance.now();
-                    tick = setInterval(function () { timerEl.textContent = ((performance.now() - started) / 1000).toFixed(1) + 's'; }, 100);
+
+                    tick = setInterval(function () {
+                        timerEl.textContent =
+                            (
+                                (performance.now() - started) / 1000
+                            ).toFixed(1) + 's';
+                    }, 100);
                 }
+
+
                 function stopClock() {
-                    if (tick) clearInterval(tick);
+                    if (tick) {
+                        clearInterval(tick);
+                    }
+
                     tick = null;
-                    var s = started ? ((performance.now() - started) / 1000).toFixed(1) : '0.0';
+
+                    var s =
+                        started
+                            ? (
+                                (performance.now() - started) / 1000
+                            ).toFixed(1)
+                            : '0.0';
+
                     started = null;
+
                     return s;
                 }
-                function renderAmount() { amountEl.textContent = digits ? rupee(parseInt(digits, 10)) : '₹0'; }
 
-                document.getElementById('pad').addEventListener('click', function (ev) {
-                    var b = ev.target.closest('[data-k]');
-                    if (!b) return;
-                    startClock();
-                    if (b.dataset.k === 'del') digits = digits.slice(0, -1);
-                    else if (digits.length < 7) digits += b.dataset.k;
-                    renderAmount();
-                    noteEl.textContent = 'Pick a tag, then save.';
-                });
-                document.getElementById('cats').addEventListener('click', function (ev) {
-                    var b = ev.target.closest('button');
-                    if (!b) return;
-                    startClock();
-                    this.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
-                    b.setAttribute('aria-pressed', 'true');
-                    cat = b.textContent.trim();
-                });
+
+                function renderAmount() {
+                    amountEl.textContent =
+                        digits
+                            ? rupee(parseInt(digits, 10))
+                            : '₹0';
+                }
+
+
+                /* Number pad */
+
+                document
+                    .getElementById('pad')
+                    .addEventListener('click', function (ev) {
+
+                        var b = ev.target.closest('[data-k]');
+
+                        if (!b) return;
+
+                        startClock();
+
+                        if (b.dataset.k === 'del') {
+                            digits = digits.slice(0, -1);
+                        } else if (digits.length < 7) {
+                            digits += b.dataset.k;
+                        }
+
+                        renderAmount();
+
+                        noteEl.textContent =
+                            'Pick a tag, then save.';
+                    });
+
+
+                /* Categories */
+
+                document
+                    .getElementById('cats')
+                    .addEventListener('click', function (ev) {
+
+                        var b = ev.target.closest('button');
+
+                        if (!b) return;
+
+                        startClock();
+
+                        this
+                            .querySelectorAll('button')
+                            .forEach(function (x) {
+                                x.setAttribute(
+                                    'aria-pressed',
+                                    'false'
+                                );
+                            });
+
+                        b.setAttribute(
+                            'aria-pressed',
+                            'true'
+                        );
+
+                        cat = b.textContent.trim();
+                    });
+
+
+                /* Income / spending */
+
                 function setDir(d) {
                     dir = d;
-                    var on = 'px-5 py-1.5 bg-ink text-white font-semibold', off = 'px-5 py-1.5 font-semibold';
-                    tabOut.className = d === 'out' ? on : off;
-                    tabIn.className = d === 'in' ? on : off;
-                }
-                tabOut.addEventListener('click', function () { startClock(); setDir('out'); });
-                tabIn.addEventListener('click', function () { startClock(); setDir('in'); });
 
-                document.getElementById('save').addEventListener('click', function () {
-                    var val = parseInt(digits || '0', 10);
-                    if (!val) { noteEl.textContent = 'Type an amount first.'; return; }
-                    var secs = stopClock();
-                    if (dir === 'in') income += val; else spent += val;
-                    list.appendChild(row({ t: cat === 'food' ? 'snack' : cat, c: cat, a: val, io: dir }));
-                    while (list.children.length > 6) list.removeChild(list.firstChild);
-                    paint();
-                    amountEl.classList.remove('pop'); void amountEl.offsetWidth; amountEl.classList.add('pop');
-                    digits = ''; renderAmount(); timerEl.textContent = '0.0s';
-                    noteEl.innerHTML = 'Written in <span class="num font-semibold text-ink">' + secs + 's</span>. It\'s in the ledger above.';
-                });
+                    var on =
+                        'px-5 py-1.5 bg-ink text-white font-semibold';
+
+                    var off =
+                        'px-5 py-1.5 font-semibold';
+
+                    tabOut.className =
+                        d === 'out'
+                            ? on
+                            : off;
+
+                    tabIn.className =
+                        d === 'in'
+                            ? on
+                            : off;
+                }
+
+
+                tabOut.addEventListener(
+                    'click',
+                    function () {
+                        startClock();
+                        setDir('out');
+                    }
+                );
+
+
+                tabIn.addEventListener(
+                    'click',
+                    function () {
+                        startClock();
+                        setDir('in');
+                    }
+                );
+
+
+                /* Save */
+
+                document
+                    .getElementById('save')
+                    .addEventListener('click', function () {
+
+                        var val =
+                            parseInt(
+                                digits || '0',
+                                10
+                            );
+
+                        if (!val) {
+                            noteEl.textContent =
+                                'Type an amount first.';
+
+                            return;
+                        }
+
+
+                        var secs = stopClock();
+
+
+                        if (dir === 'in') {
+                            income += val;
+                        } else {
+                            spent += val;
+                        }
+
+
+                        list.appendChild(
+                            row({
+                                t: cat === 'food'
+                                    ? 'snack'
+                                    : cat,
+
+                                c: cat,
+                                a: val,
+                                io: dir
+                            })
+                        );
+
+
+                        while (list.children.length > 6) {
+                            list.removeChild(
+                                list.firstChild
+                            );
+                        }
+
+
+                        paint();
+
+
+                        amountEl.classList.remove('pop');
+
+                        void amountEl.offsetWidth;
+
+                        amountEl.classList.add('pop');
+
+
+                        digits = '';
+
+                        renderAmount();
+
+                        timerEl.textContent =
+                            '0.0s';
+
+
+                        noteEl.innerHTML =
+                            'Written in <span class="num font-semibold text-ink">' +
+                            secs +
+                            's</span>. It\'s in the ledger above.';
+                    });
+
             })();
     </script>
 </body>
